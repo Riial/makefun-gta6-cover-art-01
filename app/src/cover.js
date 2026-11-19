@@ -12,6 +12,11 @@
 // ever repeats the same face; the caption block is anchored inside the hero
 // panel so the title never straddles a panel gutter; and the grade wash is
 // stronger so every panel in one cover reads as the same warm sunset.
+//
+// v3: the palms window is the default scenic pick — it is warm sunset
+// content, so it keeps a cover tonally one poster where the open-sea
+// window read as empty cool sky. SCENIC_LABELS names each window for the
+// editor's crop picker.
 
 export const GRADE_PRESETS = {
   'vice-sunset': {
@@ -60,11 +65,19 @@ export const LAYOUT_PRESETS = {
  * window and always show the full frame.
  */
 export const SCENIC_CROPS = {
-  // Landscape-shaped band: palms, sunset and lifeguard tower. A tall
-  // window cover-fits into a landscape panel by showing only its middle
-  // band — mostly empty sky — so the window is kept wide and short.
-  0: { sx: 0, sy: 0.10, sw: 0.26, sh: 0.22 },
+  // Palms, sunset and lifeguard tower. The window must be tall enough
+  // that the sun and tower survive the cover-fit's middle-band slice in
+  // a landscape panel (v2's shorter window showed only empty sky and one
+  // trunk), and narrow enough to stay clear of the woman's hair and arm.
+  // v3: widened and deepened 0.26x0.22 -> 0.30x0.30 after crop simulation.
+  0: { sx: 0, sy: 0.10, sw: 0.30, sh: 0.30 },
   1: { sx: 0.68, sy: 0.02, sw: 0.32, sh: 0.60 },
+};
+
+/** Human names for the scenic windows, shown in the editor's crop picker. */
+export const SCENIC_LABELS = {
+  0: 'Palms & sunset',
+  1: 'Open sea & rod',
 };
 
 /** The source window a panel draws: the whole frame, or its scenic detail. */

@@ -19,7 +19,9 @@ the apps two at a time, places go by win rate, and the 50 best share $250.
   slider. Pan is clamped so the photo always covers its panel. A panel's
   **Scenic detail** crop shows a faceless palms-and-sunset or open-sea
   window of a sample, so a cover can hold three different images from
-  two photos — no face is ever repeated.
+  two photos — no face is ever repeated. The palms window is the default
+  scenic pick: it is warm sunset content, while the open-sea window reads
+  as mostly empty cool sky in a small landscape panel.
 - **Three layouts** — Hero + Side Stack, Triple Strip, and Full Bleed +
   Snapshot (a tilted polaroid-style inset).
 - **Three colour grades** — Vice Sunset, Neon Nights, Palm Dusk: a warm

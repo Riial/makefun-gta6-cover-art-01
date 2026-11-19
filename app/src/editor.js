@@ -148,7 +148,15 @@ export class CoverEditor {
 
   /** 'full' shows the whole frame; 'scenic' shows the photo's faceless detail window. */
   setPanelCrop(index, crop) {
-    this.state.panels[index].crop = crop === 'scenic' ? 'scenic' : 'full';
+    const panel = this.state.panels[index];
+    panel.crop = crop === 'scenic' ? 'scenic' : 'full';
+    if (panel.crop === 'scenic') {
+      // The scenic window is framed as designed at zoom 1 with no pan — a
+      // zoomed or panned slice could wander onto a face it must never show.
+      panel.zoom = 1;
+      panel.ox = 0;
+      panel.oy = 0;
+    }
     this.repaint();
     this.emit();
   }

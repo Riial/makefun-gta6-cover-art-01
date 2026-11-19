@@ -8,6 +8,11 @@
 // faceless scenic detail (palms and sunset from the boulevard photo, or open
 // sea and rod from the pier photo), so each of the three panels reads as a
 // different image.
+//
+// v3: the scenic third panel is the palms window everywhere. The open-sea
+// window reads as mostly empty sky in a small landscape panel, and its cool
+// blue grade fights the warm sunset of the panels beside it — the palms
+// window is warm sunset content, so the cover stays one poster.
 
 /** Applies a scene's state to the editor and paints it once. */
 function paintScene(editor, { layout, grade, title, subtitle, panels, aspect, w, h }) {
@@ -40,7 +45,7 @@ export async function runShot(shot, query, editor) {
       panels: [
         { photo: 0, zoom: 1.0, ox: 0, oy: 0.12 },
         { photo: 1, zoom: 1.1, ox: 0, oy: 0.15 },
-        { photo: 1, crop: 'scenic', zoom: 1.0, ox: 0, oy: 0 },
+        { photo: 0, crop: 'scenic', zoom: 1.0, ox: 0, oy: 0 },
       ],
       w: 1280,
       h: 720,
@@ -55,7 +60,7 @@ export async function runShot(shot, query, editor) {
       panels: [
         { photo: 0, zoom: 1.1, ox: 0, oy: 0.06 },
         { photo: 1, zoom: 1.15, ox: 0, oy: 0.12 },
-        { photo: 1, crop: 'scenic', zoom: 1.0, ox: 0, oy: 0 },
+        { photo: 0, crop: 'scenic', zoom: 1.0, ox: 0, oy: 0 },
       ],
       w: 1024,
       h: 1024,
@@ -83,7 +88,7 @@ export async function runShot(shot, query, editor) {
     editor.state.panels = [
       { photo: 0, zoom: 1.0, ox: 0, oy: 0.12 },
       { photo: 1, zoom: 1.1, ox: 0, oy: 0.15 },
-      { photo: 1, crop: 'scenic', zoom: 1.0, ox: 0, oy: 0 },
+      { photo: 0, crop: 'scenic', zoom: 1.0, ox: 0, oy: 0 },
     ];
     editor.selected = 0;
     editor.setAspect('landscape');

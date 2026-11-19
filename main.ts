@@ -21,11 +21,13 @@ const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
 // Pre-flight: the scorer refuses an entry whose app is missing its entry
 // point or whose screenshots break the caps, so fail loudly here instead.
+// v3: fewer than 3 screenshots is refused too — the bounty asks for 3–4.
 if (!existsSync(join(here, 'app', 'index.html'))) {
   throw new Error('app/index.html is missing — the app cannot enter');
 }
 if (existsSync(join(here, 'screenshots'))) {
   const shots = readdirSync(join(here, 'screenshots'));
+  if (shots.length < 3) throw new Error(`too few screenshots: ${shots.length} (need 3-4)`);
   if (shots.length > 4) throw new Error(`too many screenshots: ${shots.length} (max 4)`);
   for (const shot of shots) {
     const bytes = statSync(join(here, 'screenshots', shot)).size;

@@ -4,7 +4,7 @@
 // scene for a screenshot instead (./shots.js).
 
 import { CoverEditor, SAMPLE_PHOTOS, EXPORT_SIZES } from './editor.js';
-import { GRADE_PRESETS, LAYOUT_PRESETS } from './cover.js';
+import { GRADE_PRESETS, LAYOUT_PRESETS, SCENIC_LABELS } from './cover.js';
 import { runShot } from './shots.js';
 
 const canvas = document.getElementById('cover');
@@ -75,7 +75,11 @@ function renderPanelControls() {
   cropLabel.textContent = 'Crop';
   const crop = document.createElement('select');
   crop.setAttribute('aria-label', 'Crop for the selected panel');
-  for (const [value, text] of [['full', 'Full photo'], ['scenic', 'Scenic detail']]) {
+  // The scenic option names the window it shows, so the picker says which
+  // faceless detail the panel gets (palms for the boulevard sample, open
+  // sea for the pier sample).
+  const scenicLabel = `Scenic detail — ${SCENIC_LABELS[panel.photo] || 'detail'}`;
+  for (const [value, text] of [['full', 'Full photo'], ['scenic', scenicLabel]]) {
     const option = document.createElement('option');
     option.value = value;
     option.textContent = text;
