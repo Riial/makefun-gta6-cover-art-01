@@ -1,12 +1,42 @@
-html, body { margin: 0; height: 100%; background: #f2f0f4; color: #1d1b22; font: 15px/1.4 system-ui, sans-serif; }
-.app { display: flex; gap: 32px; align-items: center; justify-content: center; height: 100%; padding: 24px; box-sizing: border-box; }
-.controls { display: flex; flex-direction: column; gap: 14px; width: 280px; }
-.controls h1 { margin: 0; font-size: 28px; }
-.controls p { margin: 0; color: #5c5866; }
-label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
-input[type=text] { font: inherit; padding: 8px; border: 1px solid #c9c4d1; border-radius: 6px; }
-button { font: inherit; font-weight: 700; padding: 10px; border: 0; border-radius: 6px; background: #1d1b22; color: #fff; cursor: pointer; }
-canvas { width: min(70vh, 60vw); height: min(70vh, 60vw); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); }
-body.shot-cover .controls { display: none; }
-body.shot-cover .app { padding: 0; }
-body.shot-cover canvas { width: 100vw; height: 100vh; box-shadow: none; }
+/* Vice Coast Cover Studio — dark neon editor chrome. System fonts only. */
+html, body { margin: 0; min-height: 100%; background: #14101d; color: #f2eef8; font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+.topbar { display: flex; align-items: baseline; gap: 18px; padding: 14px 24px; border-bottom: 1px solid #2c2140; background: linear-gradient(90deg, #1d0f2e, #2a0f33 55%, #0f2a33); }
+.brand { font-size: 26px; font-weight: 900; letter-spacing: 0.04em; color: #fff; }
+.brand span { font-weight: 700; color: #ff7ab8; letter-spacing: 0.02em; }
+.tagline { margin: 0; color: #c9b8e0; font-size: 14px; }
+.app { display: flex; gap: 24px; padding: 20px 24px 32px; align-items: flex-start; }
+.controls { width: 330px; flex: none; display: flex; flex-direction: column; gap: 18px; }
+.group { background: #1e1629; border: 1px solid #322548; border-radius: 12px; padding: 14px 16px; }
+.group h2 { margin: 0 0 10px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #ff9ecf; }
+.group h3 { margin: 0 0 10px; font-size: 14px; color: #f2eef8; }
+.group p { margin: 8px 0 0; }
+.hint { color: #a99bc2; font-size: 13px; }
+label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px; margin-bottom: 10px; }
+label.check { flex-direction: row; align-items: center; gap: 8px; margin: 0; }
+input[type=text], select { font: inherit; padding: 9px 10px; border: 1px solid #4a3a66; border-radius: 8px; background: #120b1c; color: #f2eef8; }
+input[type=file] { font: inherit; color: #c9b8e0; }
+input[type=range] { width: 100%; accent-color: #ff2e88; }
+input[type=color] { width: 56px; height: 34px; padding: 2px; border: 1px solid #4a3a66; border-radius: 8px; background: #120b1c; cursor: pointer; }
+button { font: inherit; font-weight: 700; padding: 10px 12px; border: 0; border-radius: 8px; background: #2c2140; color: #f2eef8; cursor: pointer; }
+button:hover { background: #3d2c58; }
+button.active { background: #ff2e88; color: #fff; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.presets .preset { flex: 1 1 auto; }
+.exports { display: flex; flex-direction: column; gap: 8px; }
+.exports button { background: #ff2e88; color: #fff; }
+.exports button:hover { background: #ff4d9d; }
+.row { display: flex; gap: 10px; align-items: flex-end; }
+.row button { flex: 1; }
+.row label { flex: 1; margin-bottom: 0; }
+#status { color: #7df9ff; min-height: 1.2em; }
+.preview { flex: 1; display: flex; flex-direction: column; gap: 12px; align-items: center; min-width: 0; }
+.aspect-switch { display: flex; gap: 8px; }
+.aspect-switch button { padding: 7px 14px; }
+#cover { max-width: 100%; max-height: calc(100vh - 190px); background: #12081c; border-radius: 6px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55); cursor: grab; touch-action: none; }
+#cover:active { cursor: grabbing; }
+.preview .hint { text-align: center; }
+body.shot-cover { background: #12081c; overflow: hidden; }
+body.shot-cover .topbar, body.shot-cover .controls, body.shot-cover .aspect-switch, body.shot-cover .preview .hint { display: none; }
+body.shot-cover .app { padding: 0; display: block; }
+body.shot-cover .preview { display: block; }
+body.shot-cover #cover { max-width: none; max-height: none; width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; display: block; }
