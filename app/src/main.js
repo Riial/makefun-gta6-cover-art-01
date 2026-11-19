@@ -69,6 +69,26 @@ function renderPanelControls() {
   photoLabel.appendChild(buildPanelPhotoSelect(index));
   box.appendChild(photoLabel);
 
+  // Crop: the whole frame, or the photo's faceless scenic detail (palms and
+  // sunset, or open sea) — a third distinct image without a third upload.
+  const cropLabel = document.createElement('label');
+  cropLabel.textContent = 'Crop';
+  const crop = document.createElement('select');
+  crop.setAttribute('aria-label', 'Crop for the selected panel');
+  for (const [value, text] of [['full', 'Full photo'], ['scenic', 'Scenic detail']]) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = text;
+    crop.appendChild(option);
+  }
+  crop.value = panel.crop === 'scenic' ? 'scenic' : 'full';
+  crop.addEventListener('change', () => {
+    editor.setPanelCrop(index, crop.value);
+    renderPanelControls();
+  });
+  cropLabel.appendChild(crop);
+  box.appendChild(cropLabel);
+
   const zoomLabel = document.createElement('label');
   zoomLabel.textContent = 'Zoom';
   const zoom = document.createElement('input');

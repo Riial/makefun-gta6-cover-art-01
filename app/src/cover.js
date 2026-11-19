@@ -6,12 +6,18 @@
 // beyond the system stack. Every draw is deterministic: the grain comes from
 // a seeded generator, never from Math.random, so the same state always paints
 // the same pixels.
+//
+// v2: panels can show a faceless "scenic detail" window of a sample photo
+// (palms and sunset, or open sea) instead of the whole frame, so no cover
+// ever repeats the same face; the caption block is anchored inside the hero
+// panel so the title never straddles a panel gutter; and the grade wash is
+// stronger so every panel in one cover reads as the same warm sunset.
 
 export const GRADE_PRESETS = {
   'vice-sunset': {
     label: 'Vice Sunset',
-    tintTop: 'rgba(255, 166, 66, 0.28)',
-    tintBottom: 'rgba(214, 51, 132, 0.34)',
+    tintTop: 'rgba(255, 166, 66, 0.42)',
+    tintBottom: 'rgba(214, 51, 132, 0.48)',
     glowX: 0.16,
     glowY: 0.1,
     glow: 'rgba(255, 170, 60, 0.30)',
@@ -20,8 +26,8 @@ export const GRADE_PRESETS = {
   },
   'neon-nights': {
     label: 'Neon Nights',
-    tintTop: 'rgba(255, 46, 136, 0.30)',
-    tintBottom: 'rgba(0, 210, 255, 0.30)',
+    tintTop: 'rgba(255, 46, 136, 0.42)',
+    tintBottom: 'rgba(0, 210, 255, 0.42)',
     glowX: 0.84,
     glowY: 0.12,
     glow: 'rgba(255, 46, 200, 0.28)',
@@ -30,8 +36,8 @@ export const GRADE_PRESETS = {
   },
   'palm-dusk': {
     label: 'Palm Dusk',
-    tintTop: 'rgba(150, 92, 255, 0.30)',
-    tintBottom: 'rgba(20, 30, 90, 0.38)',
+    tintTop: 'rgba(150, 92, 255, 0.42)',
+    tintBottom: 'rgba(20, 30, 90, 0.50)',
     glowX: 0.5,
     glowY: 0.08,
     glow: 'rgba(190, 130, 255, 0.26)',
@@ -45,6 +51,27 @@ export const LAYOUT_PRESETS = {
   'triple-strip': { label: 'Triple Strip' },
   'full-bleed': { label: 'Full Bleed + Snapshot' },
 };
+
+/**
+ * Faceless detail windows into the built-in samples, as fractions of each
+ * photo. Slot 0 (boulevard): the palms, sunset and lifeguard tower at the
+ * top-left corner, no face in frame. Slot 1 (pier): open sea, sky and the
+ * fishing rod on the right, no face in frame. User uploads have no scenic
+ * window and always show the full frame.
+ */
+export const SCENIC_CROPS = {
+  // Landscape-shaped band: palms, sunset and lifeguard tower. A tall
+  // window cover-fits into a landscape panel by showing only its middle
+  // band — mostly empty sky — so the window is kept wide and short.
+  0: { sx: 0, sy: 0.10, sw: 0.26, sh: 0.22 },
+  1: { sx: 0.68, sy: 0.02, sw: 0.32, sh: 0.60 },
+};
+
+/** The source window a panel draws: the whole frame, or its scenic detail. */
+export function panelSourceWindow(photoIndex, crop) {
+  if (crop === 'scenic' && SCENIC_CROPS[photoIndex]) return SCENIC_CROPS[photoIndex];
+  return { sx: 0, sy: 0, sw: 1, sh: 1 };
+}
 
 /** A tiny seeded generator, so grain and speckle are identical on every run. */
 export function seededRandom(seed) {
@@ -103,10 +130,28 @@ export function layoutPanels(layout, w, h) {
   ];
 }
 
-/** Cover-fits `photo` into a panel rect, honouring zoom and pan offsets. */
+/**
+ * Where the caption block lives, in pixels. For hero-split and full-bleed
+ * the title sits inside the largest panel (the hero), so it never straddles
+ * a panel gutter; triple-strip is a full-width strip poster, so the title
+ * keeps the whole cover.
+ */
+export function titleAnchor(layout, rects, w, h) {
+  if (layout === 'triple-strip') return { x: 0, y: 0, w, h };
+  let best = rects[0];
+  for (const r of rects) {
+    if (r.w * r.h > best.w * best.h) best = r;
+  }
+  return { x: best.x * w, y: best.y * h, w: best.w * w, h: best.h * h };
+}
+
+/** Cover-fits `photo` (or its scenic window) into a panel rect, honouring zoom and pan offsets. */
 export function drawPanelPhoto(ctx, photo, rect, panel) {
-  const iw = photo.naturalWidth;
-  const ih = photo.naturalHeight;
+  const src = panelSourceWindow(panel.photo, panel.crop);
+  const iw = photo.naturalWidth * src.sw;
+  const ih = photo.naturalHeight * src.sh;
+  const sx = photo.naturalWidth * src.sx;
+  const sy = photo.naturalHeight * src.sy;
   const base = Math.max(rect.w / iw, rect.h / ih);
   const scale = base * (panel.zoom || 1);
   const dw = iw * scale;
@@ -116,7 +161,7 @@ export function drawPanelPhoto(ctx, photo, rect, panel) {
   // Clamp the pan so the photo always covers its panel — no empty gaps.
   dx = Math.min(rect.x, Math.max(rect.x + rect.w - dw, dx));
   dy = Math.min(rect.y, Math.max(rect.y + rect.h - dh, dy));
-  ctx.drawImage(photo, dx, dy, dw, dh);
+  ctx.drawImage(photo, sx, sy, iw, ih, dx, dy, dw, dh);
 }
 
 /** Warms/cools a panel with the grade's sunset-to-neon wash. */
@@ -128,9 +173,17 @@ export function gradePanel(ctx, rect, grade) {
   ctx.globalCompositeOperation = 'soft-light';
   ctx.fillStyle = wash;
   ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+  // The overlay pass is the one that unifies the panels: a bright midday
+  // panel and a sunset panel must come out reading as one warm poster.
   ctx.globalCompositeOperation = 'overlay';
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.85;
   ctx.fillStyle = wash;
+  ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+  // A light warm hue shift, so a midday-blue panel stops reading as a
+  // different time of day from the sunset panels beside it.
+  ctx.globalCompositeOperation = 'color';
+  ctx.globalAlpha = 0.2;
+  ctx.fillStyle = grade.tintTop;
   ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
   ctx.restore();
 }
@@ -166,27 +219,31 @@ export function finishCover(ctx, w, h, grade) {
 }
 
 /**
- * The caption block: a dark scrim rising from the foot, the title in huge
- * condensed white capitals with a dark outline and neon shadow, the subtitle
- * in italic letter-spaced capitals above it.
+ * The caption block: a dark scrim rising from the foot of the anchor panel,
+ * the title in huge condensed white capitals with a thick dark outline and
+ * neon shadow, the subtitle in italic letter-spaced capitals above it. The
+ * text is centred on the anchor panel and sized to fit inside it, so it
+ * never crosses into a neighbouring panel.
  */
-export function drawTitleBlock(ctx, w, h, title, subtitle, grade, titleSize, titleColor, outline) {
-  const bandH = h * 0.3;
-  const scrim = ctx.createLinearGradient(0, h - bandH, 0, h);
+export function drawTitleBlock(ctx, w, h, title, subtitle, grade, titleSize, titleColor, outline, anchor) {
+  const a = anchor || { x: 0, y: 0, w, h };
+  const bandH = a.h * 0.3;
+  const scrim = ctx.createLinearGradient(0, a.y + a.h - bandH, 0, a.y + a.h);
   scrim.addColorStop(0, 'rgba(10, 0, 18, 0)');
   scrim.addColorStop(1, grade.scrim);
   ctx.fillStyle = scrim;
-  ctx.fillRect(0, h - bandH, w, bandH);
+  ctx.fillRect(a.x, a.y + a.h - bandH, a.w, bandH);
 
   const text = (title || '').trim().toUpperCase();
   const sub = (subtitle || '').trim().toUpperCase();
-  const baseline = h - h * 0.055;
+  const cx = a.x + a.w / 2;
+  const baseline = a.y + a.h - h * 0.055;
 
   if (sub) {
     let subSize = Math.max(14, h * 0.028 * titleSize);
     ctx.font = `italic 800 ${subSize}px 'Liberation Sans', 'DejaVu Sans', sans-serif`;
     try { ctx.letterSpacing = `${Math.round(subSize * 0.42)}px`; } catch { /* older canvas */ }
-    while (ctx.measureText(sub).width > w * 0.86 && subSize > 10) {
+    while (ctx.measureText(sub).width > a.w * 0.86 && subSize > 10) {
       subSize -= 1;
       ctx.font = `italic 800 ${subSize}px 'Liberation Sans', 'DejaVu Sans', sans-serif`;
     }
@@ -195,31 +252,31 @@ export function drawTitleBlock(ctx, w, h, title, subtitle, grade, titleSize, tit
     ctx.fillStyle = grade.subtitle;
     ctx.shadowColor = 'rgba(0,0,0,0.6)';
     ctx.shadowBlur = subSize * 0.4;
-    ctx.fillText(sub, w / 2, baseline - h * 0.115 * titleSize - subSize * 0.4);
+    ctx.fillText(sub, cx, baseline - h * 0.115 * titleSize - subSize * 0.4);
     ctx.shadowBlur = 0;
     try { ctx.letterSpacing = '0px'; } catch { /* older canvas */ }
   }
 
   if (!text) return;
-  let size = h * 0.115 * titleSize;
+  let size = h * 0.12 * titleSize;
   const squash = 0.84;
   ctx.font = `900 ${size}px 'Liberation Sans', 'DejaVu Sans', sans-serif`;
-  while (ctx.measureText(text).width * squash > w * 0.92 && size > 12) {
+  while (ctx.measureText(text).width * squash > a.w * 0.92 && size > 12) {
     size -= 2;
     ctx.font = `900 ${size}px 'Liberation Sans', 'DejaVu Sans', sans-serif`;
   }
   ctx.save();
-  ctx.translate(w / 2, baseline);
+  ctx.translate(cx, baseline);
   ctx.scale(squash, 1);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  ctx.shadowColor = 'rgba(255, 46, 136, 0.55)';
-  ctx.shadowBlur = size * 0.14;
+  ctx.shadowColor = 'rgba(255, 46, 136, 0.65)';
+  ctx.shadowBlur = size * 0.18;
   ctx.shadowOffsetY = size * 0.03;
   if (outline) {
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#160a24';
-    ctx.lineWidth = Math.max(2, size * 0.07);
+    ctx.lineWidth = Math.max(2, size * 0.1);
     ctx.strokeText(text, 0, 0);
   }
   ctx.fillStyle = titleColor || '#ffffff';
@@ -231,7 +288,8 @@ export function drawTitleBlock(ctx, w, h, title, subtitle, grade, titleSize, tit
  * Paints the whole cover: panels with white gutters and thin white frames,
  * the grade wash, the finish and the caption block. `state` carries layout,
  * grade, title, subtitle, titleSize, titleColor, outline and panels; `photos`
- * is an array of images (or null) indexed by each panel's `photo`.
+ * is an array of images (or null) indexed by each panel's `photo`. A panel
+ * may carry `crop: 'scenic'` to show its photo's faceless detail window.
  */
 export function renderCover(ctx, w, h, state, photos) {
   const grade = GRADE_PRESETS[state.grade] || GRADE_PRESETS['vice-sunset'];
@@ -304,7 +362,8 @@ export function renderCover(ctx, w, h, state, photos) {
   }
 
   finishCover(ctx, w, h, grade);
-  drawTitleBlock(ctx, w, h, state.title, state.subtitle, grade, state.titleSize || 1, state.titleColor || '#ffffff', state.outline !== false);
+  const anchor = titleAnchor(state.layout, rects, w, h);
+  drawTitleBlock(ctx, w, h, state.title, state.subtitle, grade, state.titleSize || 1, state.titleColor || '#ffffff', state.outline !== false, anchor);
 
   // Poster frame: a thin white line just inside the edge.
   ctx.strokeStyle = 'rgba(255,255,255,0.6)';

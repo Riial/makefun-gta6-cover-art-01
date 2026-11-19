@@ -32,7 +32,8 @@ export function freshState() {
     panels: [
       { photo: 0, zoom: 1, ox: 0, oy: 0.12 },
       { photo: 1, zoom: 1.1, ox: 0, oy: 0.15 },
-      { photo: 0, zoom: 1.3, ox: 0.11, oy: 0.63 },
+      // The third panel is a faceless scenic detail, never the same face twice.
+      { photo: 0, crop: 'scenic', zoom: 1, ox: 0, oy: 0 },
     ],
   };
 }
@@ -145,13 +146,20 @@ export class CoverEditor {
     this.emit();
   }
 
+  /** 'full' shows the whole frame; 'scenic' shows the photo's faceless detail window. */
+  setPanelCrop(index, crop) {
+    this.state.panels[index].crop = crop === 'scenic' ? 'scenic' : 'full';
+    this.repaint();
+    this.emit();
+  }
+
   setPanelZoom(index, zoom) {
     this.state.panels[index].zoom = zoom;
     this.repaint();
   }
 
   resetPanel(index) {
-    this.state.panels[index] = { photo: this.state.panels[index].photo, zoom: 1, ox: 0, oy: 0 };
+    this.state.panels[index] = { photo: this.state.panels[index].photo, zoom: 1, ox: 0, oy: 0, crop: 'full' };
     this.repaint();
     this.emit();
   }

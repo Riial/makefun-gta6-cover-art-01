@@ -16,14 +16,20 @@ the apps two at a time, places go by win rate, and the 50 best share $250.
 - **Any photo** — upload up to three of your own, or use the two built-in
   samples. Each panel takes its own photo, or one photo can fill every
   panel; click a panel to select it, drag its photo to pan, zoom with the
-  slider. Pan is clamped so the photo always covers its panel.
+  slider. Pan is clamped so the photo always covers its panel. A panel's
+  **Scenic detail** crop shows a faceless palms-and-sunset or open-sea
+  window of a sample, so a cover can hold three different images from
+  two photos — no face is ever repeated.
 - **Three layouts** — Hero + Side Stack, Triple Strip, and Full Bleed +
   Snapshot (a tilted polaroid-style inset).
 - **Three colour grades** — Vice Sunset, Neon Nights, Palm Dusk: a warm
-  wash, a glow, a vignette and seeded film grain over every panel.
+  wash, a glow, a vignette and seeded film grain over every panel. The
+  wash is strong enough that a bright midday shot and a sunset shot in
+  the same cover read as one warm poster.
 - **Caption** — title and subtitle with size, colour and dark-outline
-  controls; the title is drawn in huge condensed capitals with a neon
-  shadow over a scrim at the foot of the cover.
+  controls; the title is drawn in huge condensed capitals with a thick
+  dark outline and neon shadow over a scrim at the foot of the hero
+  panel, so it never straddles a panel gutter.
 - **Fast and easy** — load a sample, type a caption, hit one export
   button. Live preview in landscape, square and portrait aspects.
 
