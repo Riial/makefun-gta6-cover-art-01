@@ -1,16 +1,15 @@
-// Neon Coast Cover Studio — wires the page: pick photos, write words, choose
-// a layout, a grade and a size, and export the cover as a PNG. A `?shot=`
-// query sets up a fixed scene for a screenshot instead (./shots.js).
-import { drawCover, defaultState, SIZES, LAYOUTS, GRADES, SAMPLE_PHOTOS } from './cover.js';
+// Golden Heist — wires the editor: loads the sample photos, binds every
+// control to the cover state, redraws the live preview, exports the PNG,
+// and hands ?shot= scenes to shots.js. Photos stay on the machine.
+import { defaultState, drawCover, SAMPLES, GRADES, LAYOUTS, SIZES, layoutPanels, layoutSlots } from './cover.js';
 import { runShot } from './shots.js';
 
 const canvas = document.getElementById('cover');
 const statusEl = document.getElementById('status');
 const state = defaultState();
-const images = new Map();
-let uploadCount = 0;
+const photos = {};
+let selected = 0;
 
-/** Loads an image from a URL, resolving once it can be drawn. */
 export function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -20,231 +19,163 @@ export function loadImage(url) {
   });
 }
 
-async function loadDefaults() {
-  for (const [key, photo] of Object.entries(SAMPLE_PHOTOS)) {
-    if (!images.has(key)) images.set(key, await loadImage(photo.file));
-  }
-}
-
-async function ensureFonts() {
-  try {
-    await Promise.all([
-      document.fonts.load('900 100px "NeonCoastDisplay"'),
-      document.fonts.load('700 40px "NeonCoastCondensed"'),
-      document.fonts.load('600 20px "NeonCoastText"'),
-      document.fonts.load('italic 40px "NeonCoastSerif"'),
-    ]);
-  } catch {
-    // A missing face falls back to the system sans; the cover still draws.
-  }
-  await document.fonts.ready;
-}
-
-/** Draws the current state into the preview canvas at half export size. */
-function drawPreview() {
-  const size = SIZES[state.size];
-  canvas.width = Math.round(size.w / 2);
-  canvas.height = Math.round(size.h / 2);
-  drawCover(canvas, state, images);
+function previewSize() {
+  const s = SIZES[state.size];
+  const maxW = 980, maxH = 640;
+  const k = Math.min(maxW / s.w, maxH / s.h, 1);
+  return { w: Math.round(s.w * k), h: Math.round(s.h * k) };
 }
 
 function redraw() {
-  drawPreview();
-}
-
-function choiceButtons(el, options, current, onPick) {
-  el.innerHTML = '';
-  for (const [key, opt] of Object.entries(options)) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.setAttribute('aria-pressed', String(key === current));
-    b.innerHTML = `${opt.label}<small>${opt.sub}</small>`;
-    b.addEventListener('click', () => {
-      onPick(key);
-      choiceButtons(el, options, key, onPick);
-      redraw();
-    });
-    el.appendChild(b);
+  const { w, h } = previewSize();
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
   }
-}
-
-function buildChoices() {
-  choiceButtons(document.getElementById('layoutChoices'), LAYOUTS, state.layout, (k) => { state.layout = k; });
-  choiceButtons(document.getElementById('gradeChoices'), GRADES, state.grade, (k) => { state.grade = k; });
-  choiceButtons(document.getElementById('sizeChoices'), SIZES, state.size, (k) => { state.size = k; });
-}
-
-function photoOptions(select, current) {
-  select.innerHTML = '';
-  for (const [key, photo] of Object.entries(SAMPLE_PHOTOS)) {
-    const o = document.createElement('option');
-    o.value = key;
-    o.textContent = photo.label;
-    select.appendChild(o);
-  }
-  for (const key of images.keys()) {
-    if (key.startsWith('up')) {
-      const o = document.createElement('option');
-      o.value = key;
-      o.textContent = `Uploaded photo ${key.slice(2)}`;
-      select.appendChild(o);
-    }
-  }
-  select.value = current;
-}
-
-function buildPanelEditors() {
-  const host = document.getElementById('panelEditors');
-  host.innerHTML = '';
-  const roles = ['feature', 'small 1', 'small 2', 'small 3', 'small 4', 'strip'];
-  state.panels.forEach((panel, i) => {
-    const box = document.createElement('div');
-    box.className = 'panel-editor';
-    const head = document.createElement('h3');
-    head.innerHTML = `Panel ${i + 1} <em>— ${roles[i] || 'frame'}</em>`;
-    box.appendChild(head);
-
-    const photoLabel = document.createElement('label');
-    photoLabel.textContent = 'Photo';
-    const select = document.createElement('select');
-    photoOptions(select, panel.photo);
-    select.addEventListener('change', () => {
-      panel.photo = select.value;
-      redraw();
-    });
-    photoLabel.appendChild(select);
-    box.appendChild(photoLabel);
-
-    const file = document.createElement('input');
-    file.type = 'file';
-    file.accept = 'image/*';
-    file.title = 'Or upload your own photo for this panel';
-    file.addEventListener('change', async () => {
-      const f = file.files[0];
-      if (!f) return;
-      uploadCount += 1;
-      const id = `up${uploadCount}`;
-      images.set(id, await loadImage(URL.createObjectURL(f)));
-      panel.photo = id;
-      photoOptions(select, id);
-      redraw();
-    });
-    box.appendChild(file);
-
-    const row1 = document.createElement('div');
-    row1.className = 'row';
-    const zoomLabel = document.createElement('label');
-    zoomLabel.textContent = `Zoom ${panel.zoom.toFixed(2)}×`;
-    const zoom = document.createElement('input');
-    zoom.type = 'range';
-    zoom.min = '1';
-    zoom.max = '2.2';
-    zoom.step = '0.05';
-    zoom.value = String(panel.zoom);
-    zoom.addEventListener('input', () => {
-      panel.zoom = Number(zoom.value);
-      zoomLabel.textContent = `Zoom ${panel.zoom.toFixed(2)}×`;
-      redraw();
-    });
-    zoomLabel.appendChild(zoom);
-    row1.appendChild(zoomLabel);
-    const tagLabel = document.createElement('label');
-    tagLabel.textContent = 'Role tag';
-    const tag = document.createElement('input');
-    tag.type = 'text';
-    tag.maxLength = 18;
-    tag.value = panel.tag;
-    tag.addEventListener('input', () => {
-      panel.tag = tag.value;
-      redraw();
-    });
-    tagLabel.appendChild(tag);
-    row1.appendChild(tagLabel);
-    box.appendChild(row1);
-
-    const row2 = document.createElement('div');
-    row2.className = 'row';
-    for (const axis of ['fx', 'fy']) {
-      const lab = document.createElement('label');
-      lab.textContent = axis === 'fx' ? 'Focus left–right' : 'Focus top–bottom';
-      const range = document.createElement('input');
-      range.type = 'range';
-      range.min = '0';
-      range.max = '1';
-      range.step = '0.01';
-      range.value = String(panel[axis]);
-      range.addEventListener('input', () => {
-        panel[axis] = Number(range.value);
-        redraw();
-      });
-      lab.appendChild(range);
-      row2.appendChild(lab);
-    }
-    box.appendChild(row2);
-    host.appendChild(box);
+  drawCover(canvas, state, photos);
+  document.querySelectorAll('#panels button').forEach((b, i) => {
+    b.classList.toggle('sel', i === selected);
   });
 }
 
-function bindWords() {
-  const map = [
-    ['titleInput', 'title'],
-    ['subtitleInput', 'subtitle'],
-    ['taglineInput', 'tagline'],
-    ['quoteInput', 'quote'],
-  ];
-  for (const [id, key] of map) {
-    document.getElementById(id).addEventListener('input', (e) => {
-      state[key] = e.target.value;
-      redraw();
-    });
-  }
+function bind(id, get, set) {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { set(el.value); redraw(); });
+  return el;
 }
 
-async function exportPNG() {
-  const size = SIZES[state.size];
-  const off = document.createElement('canvas');
-  off.width = size.w;
-  off.height = size.h;
-  await ensureFonts();
-  drawCover(off, state, images);
-  off.toBlob((blob) => {
-    if (!blob) {
-      statusEl.textContent = 'Export failed — try again.';
+function bindSelect(id, options, get, set) {
+  const el = document.getElementById(id);
+  for (const [v, label] of Object.entries(options)) {
+    const o = document.createElement('option');
+    o.value = v;
+    o.textContent = label;
+    el.appendChild(o);
+  }
+  el.value = get();
+  el.addEventListener('change', () => { set(el.value); redraw(); });
+  return el;
+}
+
+function bindPanelControls() {
+  const p = state.panels[selected];
+  const photo = document.getElementById('panelPhoto');
+  photo.innerHTML = '';
+  for (const k of Object.keys(SAMPLES)) {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = k === 'boulevard' ? 'Boulevard (woman)' : 'Pier (man)';
+    photo.appendChild(o);
+  }
+  const up = document.createElement('option');
+  up.value = 'upload';
+  up.textContent = 'Upload your own…';
+  photo.appendChild(up);
+  photo.value = p.photo in SAMPLES ? p.photo : 'upload';
+  photo.onchange = () => {
+    if (photo.value === 'upload') {
+      document.getElementById('uploadFile').click();
       return;
     }
+    p.photo = photo.value;
+    redraw();
+  };
+  const zoom = document.getElementById('panelZoom');
+  zoom.value = p.zoom;
+  zoom.oninput = () => { p.zoom = parseFloat(zoom.value); redraw(); };
+  const fx = document.getElementById('panelFx');
+  fx.value = p.fx;
+  fx.oninput = () => { p.fx = parseFloat(fx.value); redraw(); };
+  const fy = document.getElementById('panelFy');
+  fy.value = p.fy;
+  fy.oninput = () => { p.fy = parseFloat(fy.value); redraw(); };
+  const role = document.getElementById('panelRole');
+  role.value = p.role;
+  role.oninput = () => { p.role = role.value.toUpperCase(); redraw(); };
+  document.getElementById('panelName').textContent = `Panel ${selected + 1} — ${p.role}`;
+}
+
+document.getElementById('uploadFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = await loadImage(URL.createObjectURL(file));
+  const key = `user${Date.now()}`;
+  photos[key] = img;
+  state.panels[selected].photo = key;
+  const photo = document.getElementById('panelPhoto');
+  const o = document.createElement('option');
+  o.value = key;
+  o.textContent = file.name;
+  photo.appendChild(o);
+  photo.value = key;
+  redraw();
+});
+
+// Click the preview to pick a panel.
+canvas.addEventListener('click', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const x = (e.clientX - r.left) * (canvas.width / r.width);
+  const y = (e.clientY - r.top) * (canvas.height / r.height);
+  const W = canvas.width, H = canvas.height;
+  const quoteH = H * 0.062, creditH = H * 0.052, gut = Math.max(4, 8 * (W / 1920));
+  const rects = layoutPanels(state.layout, W * 0.018, quoteH + H * 0.008, W * 0.964, H - quoteH - creditH - H * 0.016, gut);
+  const slots = layoutSlots(state.layout);
+  rects.forEach((rc, i) => {
+    if (x >= rc.x && x <= rc.x + rc.w && y >= rc.y && y <= rc.y + rc.h) {
+      selected = slots[i];
+      bindPanelControls();
+      redraw();
+    }
+  });
+});
+
+bind('title', () => state.title, (v) => { state.title = v.toUpperCase(); });
+bind('subtitle', () => state.subtitle, (v) => { state.subtitle = v; });
+bind('quote', () => state.quote, (v) => { state.quote = v.toUpperCase(); });
+bind('gazette', () => state.gazette, (v) => { state.gazette = v.toUpperCase(); });
+bind('tagline', () => state.tagline, (v) => { state.tagline = v.toUpperCase(); });
+bindSelect('layout', Object.fromEntries(Object.entries(LAYOUTS).map(([k, v]) => [k, v.name])),
+  () => state.layout, (v) => { state.layout = v; });
+bindSelect('grade', Object.fromEntries(Object.entries(GRADES).map(([k, v]) => [k, v.name])),
+  () => state.grade, (v) => { state.grade = v; });
+bindSelect('size', Object.fromEntries(Object.entries(SIZES).map(([k, v]) => [k, v.name])),
+  () => state.size, (v) => { state.size = v; });
+
+document.getElementById('panels').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  selected = parseInt(b.dataset.panel, 10);
+  bindPanelControls();
+  redraw();
+});
+
+document.getElementById('export').addEventListener('click', () => {
+  const s = SIZES[state.size];
+  const off = document.createElement('canvas');
+  off.width = s.w;
+  off.height = s.h;
+  drawCover(off, state, photos);
+  off.toBlob((blob) => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `neon-coast-${state.size}-${size.w}x${size.h}.png`;
+    a.download = `golden-heist-${s.w}x${s.h}.png`;
     a.click();
-    statusEl.textContent = `Saved neon-coast-${state.size}-${size.w}x${size.h}.png`;
+    statusEl.textContent = `Saved golden-heist-${s.w}x${s.h}.png`;
   }, 'image/png');
-}
+});
 
-buildChoices();
-buildPanelEditors();
-bindWords();
-document.getElementById('exportBtn').addEventListener('click', exportPNG);
-
-const shot = new URLSearchParams(location.search).get('shot');
-if (shot) {
-  runShot(shot, new URLSearchParams(location.search), {
-    state,
-    images,
-    loadDefaults,
-    ensureFonts,
-    drawPreview,
-    syncChoices: buildChoices,
-    setState(patch) {
-      Object.assign(state, patch);
-    },
-    drawCoverFull() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      drawCover(canvas, state, images);
-    },
-  });
-} else {
-  await ensureFonts();
-  await loadDefaults();
-  redraw();
+const query = new URLSearchParams(location.search);
+const shot = query.get('shot');
+async function start() {
+  for (const [k, url] of Object.entries(SAMPLES)) {
+    photos[k] = await loadImage(url);
+  }
+  await document.fonts.ready;
+  if (shot) {
+    runShot(shot, query, state, photos, redraw);
+  } else {
+    bindPanelControls();
+    redraw();
+  }
 }
+start();

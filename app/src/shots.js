@@ -1,34 +1,29 @@
 // Fixed scenes for screenshots: ?shot=editor shows the page with a sample
-// photo loaded; ?shot=cover shows the cover alone, drawn at the window's
-// size. Query keys: layout, grade, size, title, subtitle.
-// window.__shotReady is set once the scene is painted and the fonts are in.
-export async function runShot(shot, query, env) {
-  const pick = (name, fallback) => query.get(name) ?? fallback;
-  await env.ensureFonts();
+// photo loaded; ?shot=cover shows the cover alone, full-bleed at the
+// window size. layout/grade/size come from the query. window.__shotReady
+// is set once painted (the render script waits for it).
+import { drawCover, SIZES } from './cover.js';
+
+export async function runShot(shot, query, state, photos, redraw) {
+  const layout = query.get('layout');
+  if (layout) state.layout = layout;
+  const grade = query.get('grade');
+  if (grade) state.grade = grade;
+  const size = query.get('size');
+  if (size && SIZES[size]) state.size = size;
+  // Make sure the poster fonts are really loaded before drawing.
+  await Promise.all([
+    document.fonts.load('100px Anton'),
+    document.fonts.load('40px Pacifico'),
+  ]);
+  const canvas = document.getElementById('cover');
   if (shot === 'cover') {
     document.body.classList.add('shot-cover');
-    env.setState({
-      layout: pick('layout', 'six'),
-      grade: pick('grade', 'sunset'),
-      size: pick('size', 'wide'),
-      title: pick('title', 'NEON COAST'),
-      subtitle: pick('subtitle', 'Sunset County'),
-    });
-    await env.loadDefaults();
-    if (env.syncChoices) env.syncChoices();
-    env.drawCoverFull();
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    drawCover(canvas, state, photos);
   } else {
-    env.setState({
-      layout: pick('layout', 'six'),
-      grade: pick('grade', 'neon'),
-      size: pick('size', 'wide'),
-    });
-    await env.loadDefaults();
-    if (env.syncChoices) env.syncChoices();
-    env.drawPreview();
+    redraw();
   }
-  await document.fonts.ready;
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    window.__shotReady = true;
-  }));
+  requestAnimationFrame(() => requestAnimationFrame(() => { window.__shotReady = true; }));
 }

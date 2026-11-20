@@ -1,10 +1,11 @@
-// Neon Coast Cover Studio — the entrypoint (Node 22, standard library only).
+// Golden Heist — the entry program (Node 22, standard library only).
 // Hands the app in: copies app/ and screenshots/ from beside this file to
 // /output and writes /output/dossier.json with the vendored make.fun
-// library. Outside the grader, MAKEFUN_OUTPUT_DIR stands in for /output:
+// library, exactly as the kit's starter does. Outside the grader,
+// MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-app.ts';
@@ -19,11 +20,8 @@ if (existsSync(join(here, 'screenshots'))) {
   cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
 }
 
-// Refuse to hand in an entry with too few screenshots: the gate would
-// fail it, and a missing cover means the judge has nothing to rank.
-const shots = readdirSync(join(out, 'screenshots')).filter((f) => !f.startsWith('.'));
-if (shots.length < 3) throw new Error(`expected at least 3 screenshots, found ${shots.length}`);
-
+// The scorer's caps (reference/gate.json): text_max_bytes shapes the
+// dossier text; the rest refuse an entry the scorer would refuse.
 writeFileSync(
   join(out, 'dossier.json'),
   buildDossier(out, {
@@ -34,5 +32,3 @@ writeFileSync(
     app_path_max_bytes: 1000,
   }),
 );
-
-console.log(`handed in ${shots.length} screenshots, app + dossier written to ${out}`);

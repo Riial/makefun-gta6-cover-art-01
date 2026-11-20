@@ -1,69 +1,47 @@
-// A tiny static server for app/ (Node 22, standard library only), so the
-// entry can be tried locally without a build step:
-//   node serve.ts [--port 8080]
-// Serves app/ on http://localhost:8080. It sends the MIME types an offline
-// web app needs, refuses any path outside app/, and does nothing else:
-// a development convenience, not a web server for the internet.
-import { createReadStream, statSync } from 'node:fs';
+// Golden Heist — serves app/ on localhost for trying it in a desktop
+// browser and for the screenshot render script. No network beyond the
+// loopback; every file comes from app/. Usage: node serve.ts [port]
+// (PORT env also works). Open http://localhost:8080 after starting.
 import { createServer } from 'node:http';
-import { extname, join, normalize, resolve, sep } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(fileURLToPath(new URL('./app', import.meta.url)));
-const portArg = process.argv.indexOf('--port');
-const wanted = portArg === -1 ? 8080 : Number(process.argv[portArg + 1]);
-const port = Number.isInteger(wanted) && wanted > 0 && wanted < 65536 ? wanted : 8080;
+const here = fileURLToPath(new URL('.', import.meta.url));
+const port = parseInt(process.argv[2] ?? process.env.PORT ?? '8080', 10);
 
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
+const TYPES = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.mjs': 'text/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff2': 'font/woff2',
-  '.woff': 'font/woff',
   '.ttf': 'font/ttf',
-  '.otf': 'font/otf',
-  '.txt': 'text/plain; charset=utf-8',
+  '.txt': 'text/plain',
 };
 
-createServer((request, response) => {
-  const url = new URL(request.url ?? '/', 'http://localhost');
-  let pathname;
+const server = createServer(async (req, res) => {
+  const path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  const file = join(here, 'app', path === '/' ? 'index.html' : path);
+  if (!file.startsWith(join(here, 'app')) || !existsSync(file)) {
+    res.writeHead(404);
+    res.end('not found');
+    return;
+  }
   try {
-    pathname = decodeURIComponent(url.pathname);
+    const data = await readFile(file);
+    res.writeHead(200, { 'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream' });
+    res.end(data);
   } catch {
-    response.writeHead(400).end('bad request');
-    return;
+    res.writeHead(500);
+    res.end('error');
   }
-  if (pathname.endsWith('/')) pathname += 'index.html';
-  const file = resolve(join(root, normalize(pathname)));
-  if (file !== root && !file.startsWith(root + sep)) {
-    response.writeHead(403).end('forbidden');
-    return;
-  }
-  let size;
-  try {
-    const stats = statSync(file);
-    if (!stats.isFile()) throw new Error('not a file');
-    size = stats.size;
-  } catch {
-    response.writeHead(404).end('not found');
-    return;
-  }
-  response.writeHead(200, {
-    'content-type': MIME[extname(file).toLowerCase()] ?? 'application/octet-stream',
-    'content-length': size,
-    'cache-control': 'no-store',
-  });
-  createReadStream(file).pipe(response);
-}).listen(port, '127.0.0.1', () => {
-  console.log(`app/ is on http://localhost:${port}`);
+});
+
+server.listen(port, '127.0.0.1', () => {
+  console.log(`Golden Heist serving app/ at http://127.0.0.1:${port}/`);
 });
