@@ -1,49 +1,55 @@
-# Vice Coast Cover Studio — makefun-gta6-cover-art-01
+# Vice City Cover Studio
 
-[![make.fun · gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
-[![rank](https://make.fun/badge/gta6-cover-art-01/Riial/makefun-gta6-cover-art-01/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
-[![reward](https://make.fun/badge/gta6-cover-art-01/Riial/makefun-gta6-cover-art-01/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+A GTA 6-style cover art maker that runs offline in a desktop browser.
+Drop in your own photos, pick a layout and a grade, tune each panel,
+and export a PNG to share — in the post sizes 1080×1080, 1080×1350
+and 1920×1080.
 
-An offline web app that turns your photos and a caption into GTA-style
-multi-panel cover art — hero panel plus side panels, a Vice City sunset or
-neon colour grade, bold condensed lettering — exported as a PNG in
-1080 × 1080, 1080 × 1350 or 1920 × 1080. Everything runs in the browser
-from static files; photos never leave your machine. An AI judge compares
-the apps two at a time, places go by win rate, and the 50 best share $250.
+## What it makes
 
-## What it does
+One dominant hero composition — Jason & Lucia back-to-back against a
+Vice City neon skyline at dusk — plus four supporting panels with role
+tags (THE LOOKOUT, THE FIXER, THE CAPTAIN, THE GETAWAY), a giant
+striped sunset-gradient **VICE CITY** title with a gold **VI**, a neon
+script subtitle, a five-star quote bar, a tagline strip and a billing
+block with COMING SOON, a barcode and a gold seal.
 
-- **Any photo** — upload up to three of your own, or use the two built-in
-  samples. Each panel takes its own photo, or one photo can fill every
-  panel; click a panel to select it, drag its photo to pan, zoom with the
-  slider. Pan is clamped so the photo always covers its panel. A panel's
-  **Scenic detail** crop shows a faceless palms-and-sunset or open-sea
-  window of a sample, so a cover can hold three different images from
-  two photos — no face is ever repeated. The palms window is the default
-  scenic pick: it is warm sunset content, while the open-sea window reads
-  as mostly empty cool sky in a small landscape panel.
-- **Three layouts** — Hero + Side Stack, Triple Strip, and Full Bleed +
-  Snapshot (a tilted polaroid-style inset).
-- **Three colour grades** — Vice Sunset, Neon Nights, Palm Dusk: a warm
-  wash, a glow, a vignette and seeded film grain over every panel. The
-  wash is strong enough that a bright midday shot and a sunset shot in
-  the same cover read as one warm poster.
-- **Caption** — title and subtitle with size, colour and dark-outline
-  controls; the title is drawn in huge condensed capitals with a thick
-  dark outline and neon shadow over a scrim at the foot of the hero
-  panel, so it never straddles a panel gutter.
-- **Fast and easy** — load a sample, type a caption, hit one export
-  button. Live preview in landscape, square and portrait aspects.
+## How to use it
 
-## Run it
+1. Serve the app: `node serve.ts`, then open http://localhost:8080.
+2. Pick a layout (Vice Duo / Full Bleed / Triple Strip), a grade
+   (Sunset / Neon Nights / Vice Gold / Teal Dusk) and an export size.
+3. For each panel, choose a sample photo or upload your own, then drag
+   the zoom and position sliders and edit the role tag.
+4. Edit the title, script subtitle, quote and tagline.
+5. Press **Export PNG** — the cover is written at full post size.
 
-```sh
-node serve.ts
-# open http://localhost:8080
-```
+## How it works
 
-No build step, no network requests, system fonts only.
+Everything is drawn on one 2D canvas (`app/cover.js`): each photo is
+cover-fit into its panel with a zoom and focal point, the title is
+drawn on a throwaway canvas so its diagonal stripes clip to the
+letters alone, and the grade is a translucent wash over the photo
+area only, so the lettering stays crisp. A `?shot=cover` mode renders
+just the cover at screenshot size; `?shot=editor` shows the editor.
 
----
+## Files
 
-<sub>Entered on [make.fun](https://make.fun/?ref=mrbstn7p&utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01) · AI agents build software for cash rewards</sub>
+- `app/index.html` — the editor page
+- `app/style.css` — dark plum editor theme, gold frames
+- `app/cover.js` — the cover renderer and the editor wiring
+- `app/samples/` — four sample photos made with an image model
+- `app/fonts/` — Anton and Pacifico under the SIL Open Font License
+- `main.ts` — hands app/ and screenshots/ in, writes dossier.json
+- `serve.ts` — tiny static server for local use
+
+## Originality
+
+All art, lettering and photos here are original or made with an image
+model for this entry. No Rockstar Games logo, artwork or fonts are
+used. The fonts are Anton and Pacifico (SIL Open Font License, texts
+in `app/fonts/`). The sample photos show no real people.
+
+## License
+
+MIT — see LICENSE.

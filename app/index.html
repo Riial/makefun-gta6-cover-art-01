@@ -3,77 +3,73 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vice Coast Cover Studio — GTA-style cover art maker</title>
-<link rel="stylesheet" href="./style.css">
+<title>Vice City Cover Studio — GTA 6-style cover maker</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">VICE COAST <span>Cover Studio</span></div>
-  <p class="tagline">Your photos. Your caption. A poster in three clicks.</p>
+<header class="topbar" id="topbar">
+  <div class="brand">
+    <h1>VICE CITY <span>COVER STUDIO</span></h1>
+    <p class="sub">Turn any photo into GTA 6-style cover art. Offline — your photos never leave this machine.</p>
+  </div>
+  <button id="exportBtn" class="export" type="button">Export PNG</button>
 </header>
-<main class="app">
-  <section class="controls" aria-label="Cover controls">
-    <div class="group">
-      <h2>1 · Photos</h2>
-      <div id="photo-slots"></div>
-      <button id="load-samples" type="button">Load the two sample photos</button>
-      <p class="hint">Photos stay on your machine — nothing is uploaded. Tip: a panel's
-        <b>Scenic detail</b> crop turns a sample into a faceless palms-and-sunset
-        or open-sea shot, so a cover can hold three different images from two
-        photos. The palms window is the warm one — it is the scenic pick the
-        hero and square covers use.</p>
-    </div>
 
-    <div class="group">
-      <h2>2 · Layout</h2>
-      <div id="layout-presets" class="presets"></div>
-    </div>
-
-    <div class="group">
-      <h2>3 · Colour grade</h2>
-      <div id="grade-presets" class="presets"></div>
-    </div>
-
-    <div class="group">
-      <h2>4 · Caption</h2>
-      <label>Title
-        <input id="title" type="text" maxlength="30" value="VICE COAST">
-      </label>
-      <label>Subtitle
-        <input id="subtitle" type="text" maxlength="40" value="Sunset Heist">
-      </label>
-      <label>Title size
-        <input id="title-size" type="range" min="0.7" max="1.4" step="0.05" value="1">
-      </label>
-      <div class="row">
-        <label>Title colour
-          <input id="title-color" type="color" value="#ffffff">
-        </label>
-        <label class="check">Dark outline
-          <input id="title-outline" type="checkbox" checked>
-        </label>
+<main class="workbench" id="workbench">
+  <section class="stage-wrap">
+    <div class="toolbar" id="toolbar">
+      <div class="group" id="layoutGroup" aria-label="Layout">
+        <span class="group-label">Layout</span>
+        <button type="button" data-layout="duo" class="active">Vice Duo</button>
+        <button type="button" data-layout="bleed">Full Bleed</button>
+        <button type="button" data-layout="strip">Triple Strip</button>
+      </div>
+      <div class="group" id="gradeGroup" aria-label="Grade">
+        <span class="group-label">Grade</span>
+        <button type="button" data-grade="sunset" class="active">Sunset</button>
+        <button type="button" data-grade="neon">Neon Nights</button>
+        <button type="button" data-grade="gold">Vice Gold</button>
+        <button type="button" data-grade="teal">Teal Dusk</button>
+      </div>
+      <div class="group" id="sizeGroup" aria-label="Size">
+        <span class="group-label">Size</span>
+        <button type="button" data-size="wide" class="active">Wide 1920×1080</button>
+        <button type="button" data-size="square">Square 1080×1080</button>
+        <button type="button" data-size="portrait">Portrait 1080×1350</button>
       </div>
     </div>
 
-    <div class="group" id="panel-controls" aria-label="Selected panel controls"></div>
-
-    <div class="group">
-      <h2>5 · Export PNG</h2>
-      <div id="exports" class="exports"></div>
-      <p id="status" role="status"></p>
+    <div class="stage" id="stage">
+      <canvas id="cover" width="960" height="540"></canvas>
     </div>
+    <p class="hint" id="hint">Pick a layout, a grade and a size — then tune each panel below. Export writes a PNG at full post size.</p>
   </section>
 
-  <section class="preview" aria-label="Live preview">
-    <div class="aspect-switch" role="group" aria-label="Preview size">
-      <button type="button" data-aspect="landscape" class="active">Landscape</button>
-      <button type="button" data-aspect="square">Square</button>
-      <button type="button" data-aspect="portrait">Portrait</button>
-    </div>
-    <canvas id="cover" width="960" height="540" aria-label="Live cover preview"></canvas>
-    <p class="hint">Click a panel to select it, then drag its photo to pan. Zoom with the slider.</p>
-  </section>
+  <aside class="panel" id="panel">
+    <h2>Panels</h2>
+    <div id="panelList"></div>
+
+    <h2>Caption</h2>
+    <label class="field">Title
+      <input id="inTitle" type="text" value="VICE CITY" maxlength="24">
+    </label>
+    <label class="field">Script subtitle
+      <input id="inScript" type="text" value="Jason &amp; Lucia" maxlength="32">
+    </label>
+    <label class="field">Quote
+      <input id="inQuote" type="text" value="EVERY SUNSET ENDS IN A GETAWAY" maxlength="60">
+    </label>
+    <label class="field">Tagline
+      <input id="inTagline" type="text" value="TWO OUTLAWS · ONE COAST · NO WAY BACK" maxlength="60">
+    </label>
+  </aside>
 </main>
-<script type="module" src="./src/main.js"></script>
+
+<footer class="foot" id="foot">
+  <p>Vice City Cover Studio — an offline cover maker. Fonts Anton &amp; Pacifico under the SIL Open Font License.
+  Sample photos were made with an image model. No Rockstar Games logo, artwork or fonts are used.</p>
+</footer>
+
+<script type="module" src="cover.js"></script>
 </body>
 </html>

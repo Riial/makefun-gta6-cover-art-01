@@ -1,45 +1,237 @@
-/* Vice Coast Cover Studio — dark neon editor chrome. System fonts only. */
-html, body { margin: 0; min-height: 100%; background: #14101d; color: #f2eef8; font: 15px/1.45 system-ui, -apple-system, sans-serif; }
-.topbar { display: flex; align-items: baseline; gap: 18px; padding: 14px 24px; border-bottom: 1px solid #2c2140; background: linear-gradient(90deg, #1d0f2e, #2a0f33 55%, #0f2a33); }
-.brand { font-size: 26px; font-weight: 900; letter-spacing: 0.04em; color: #fff; }
-.brand span { font-weight: 700; color: #ff7ab8; letter-spacing: 0.02em; }
-.tagline { margin: 0; color: #c9b8e0; font-size: 14px; }
-.app { display: flex; gap: 24px; padding: 20px 24px 32px; align-items: flex-start; }
-.controls { width: 330px; flex: none; display: flex; flex-direction: column; gap: 18px; }
-.group { background: #1e1629; border: 1px solid #322548; border-radius: 12px; padding: 14px 16px; }
-.group h2 { margin: 0 0 10px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #ff9ecf; }
-.group h3 { margin: 0 0 10px; font-size: 14px; color: #f2eef8; }
-.group p { margin: 8px 0 0; }
-.hint { color: #a99bc2; font-size: 13px; }
-.hint b { color: #ffd166; font-weight: 700; }
-#panel-controls select { width: 100%; }
-label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px; margin-bottom: 10px; }
-label.check { flex-direction: row; align-items: center; gap: 8px; margin: 0; }
-input[type=text], select { font: inherit; padding: 9px 10px; border: 1px solid #4a3a66; border-radius: 8px; background: #120b1c; color: #f2eef8; }
-input[type=text]:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid #ff2e88; outline-offset: 1px; }
-input[type=file] { font: inherit; color: #c9b8e0; }
-input[type=range] { width: 100%; accent-color: #ff2e88; }
-input[type=color] { width: 56px; height: 34px; padding: 2px; border: 1px solid #4a3a66; border-radius: 8px; background: #120b1c; cursor: pointer; }
-button { font: inherit; font-weight: 700; padding: 10px 12px; border: 0; border-radius: 8px; background: #2c2140; color: #f2eef8; cursor: pointer; }
-button:hover { background: #3d2c58; }
-button.active { background: #ff2e88; color: #fff; }
-.presets { display: flex; flex-wrap: wrap; gap: 8px; }
-.presets .preset { flex: 1 1 auto; }
-.exports { display: flex; flex-direction: column; gap: 8px; }
-.exports button { background: #ff2e88; color: #fff; }
-.exports button:hover { background: #ff4d9d; }
-.row { display: flex; gap: 10px; align-items: flex-end; }
-.row button { flex: 1; }
-.row label { flex: 1; margin-bottom: 0; }
-#status { color: #7df9ff; min-height: 1.2em; }
-.preview { flex: 1; display: flex; flex-direction: column; gap: 12px; align-items: center; min-width: 0; }
-.aspect-switch { display: flex; gap: 8px; }
-.aspect-switch button { padding: 7px 14px; }
-#cover { max-width: 100%; max-height: calc(100vh - 190px); background: #12081c; border-radius: 6px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55); cursor: grab; touch-action: none; }
-#cover:active { cursor: grabbing; }
-.preview .hint { text-align: center; }
-body.shot-cover { background: #12081c; overflow: hidden; }
-body.shot-cover .topbar, body.shot-cover .controls, body.shot-cover .aspect-switch, body.shot-cover .preview .hint { display: none; }
-body.shot-cover .app { padding: 0; display: block; }
-body.shot-cover .preview { display: block; }
-body.shot-cover #cover { max-width: none; max-height: none; width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; display: block; }
+/* Vice City Cover Studio — dark plum editor, gold frames, neon accents. */
+@font-face {
+  font-family: 'Anton';
+  src: url('fonts/Anton-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pacifico';
+  src: url('fonts/Pacifico-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #160a2b;
+  color: #f2eafc;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 22px;
+  background: linear-gradient(90deg, #1d0b38, #2a0f45 55%, #1d0b38);
+  border-bottom: 2px solid #d8a93b;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-family: Anton, 'Arial Black', sans-serif;
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: 2px;
+  color: #fff;
+}
+
+.topbar h1 span {
+  background: linear-gradient(90deg, #ffb347, #ff5e8a, #b45cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.topbar .sub {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #c9b8d9;
+}
+
+.export {
+  font-family: Anton, 'Arial Black', sans-serif;
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: #1a0b2e;
+  background: linear-gradient(90deg, #ffd23e, #ff9a3d);
+  border: 0;
+  border-radius: 6px;
+  padding: 12px 22px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.export:hover { filter: brightness(1.1); }
+
+.workbench {
+  display: flex;
+  gap: 18px;
+  padding: 16px 22px;
+  align-items: flex-start;
+}
+
+.stage-wrap { flex: 1 1 auto; min-width: 0; }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.group-label {
+  font-family: Anton, 'Arial Black', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #d8a93b;
+  margin-right: 2px;
+}
+
+.group button {
+  font-family: Anton, 'Arial Black', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: #f2eafc;
+  background: #2a1547;
+  border: 1px solid #5b3a86;
+  border-radius: 5px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.group button.active {
+  background: #d8a93b;
+  border-color: #d8a93b;
+  color: #1a0b2e;
+}
+
+.stage {
+  background: #0d0518;
+  border: 1px solid #3d2358;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.stage canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+}
+
+.hint {
+  font-size: 13px;
+  color: #c9b8d9;
+  margin: 10px 0 0;
+}
+
+.panel {
+  flex: 0 0 300px;
+  background: #221040;
+  border: 1px solid #3d2358;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.panel h2 {
+  font-family: Anton, 'Arial Black', sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: #ffd23e;
+  margin: 4px 0 10px;
+}
+
+.panel-card {
+  border: 1px solid #4a2d6e;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: #1d0b38;
+}
+
+.panel-card h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.panel-card .row { margin: 7px 0; }
+
+.panel-card label,
+.field {
+  display: block;
+  font-size: 12px;
+  color: #c9b8d9;
+  margin: 7px 0;
+}
+
+.panel-card input[type="text"],
+.field input[type="text"] {
+  width: 100%;
+  margin-top: 3px;
+  padding: 7px 9px;
+  border-radius: 5px;
+  border: 1px solid #5b3a86;
+  background: #160a2b;
+  color: #f2eafc;
+  font-size: 14px;
+}
+
+.panel-card input[type="range"] { width: 100%; accent-color: #d8a93b; }
+
+.panel-card select {
+  width: 100%;
+  margin-top: 3px;
+  padding: 7px 9px;
+  border-radius: 5px;
+  border: 1px solid #5b3a86;
+  background: #160a2b;
+  color: #f2eafc;
+  font-size: 14px;
+}
+
+.panel-card input[type="file"] {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c9b8d9;
+}
+
+.foot {
+  padding: 12px 22px 20px;
+  font-size: 12px;
+  color: #8d7aa8;
+}
+
+/* Shot mode: only the cover canvas stays on screen. The canvas itself is
+   never hidden — hiding its container was a blank-render bug in v4. */
+body.shot-cover { background: #160a2b; }
+body.shot-cover .topbar,
+body.shot-cover .toolbar,
+body.shot-cover .hint,
+body.shot-cover .panel,
+body.shot-cover .foot { display: none; }
+body.shot-cover .workbench { padding: 0; display: block; }
+body.shot-cover .stage {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: #160a2b;
+}
+body.shot-cover .stage canvas {
+  max-width: none;
+  border-radius: 0;
+}
