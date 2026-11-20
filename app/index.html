@@ -3,73 +3,68 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vice City Cover Studio — GTA 6-style cover maker</title>
-<link rel="stylesheet" href="style.css">
+<title>Neon Coast Cover Studio</title>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<header class="topbar" id="topbar">
-  <div class="brand">
-    <h1>VICE CITY <span>COVER STUDIO</span></h1>
-    <p class="sub">Turn any photo into GTA 6-style cover art. Offline — your photos never leave this machine.</p>
-  </div>
-  <button id="exportBtn" class="export" type="button">Export PNG</button>
-</header>
+<main class="studio">
+  <section class="controls" aria-label="Editor controls">
+    <header class="brand">
+      <h1>Neon Coast <span>Cover Studio</span></h1>
+      <p>Turn any photo into a six-frame GTA-style cover. Everything runs
+      offline in your browser — your photos never leave this machine.</p>
+    </header>
 
-<main class="workbench" id="workbench">
-  <section class="stage-wrap">
-    <div class="toolbar" id="toolbar">
-      <div class="group" id="layoutGroup" aria-label="Layout">
-        <span class="group-label">Layout</span>
-        <button type="button" data-layout="duo" class="active">Vice Duo</button>
-        <button type="button" data-layout="bleed">Full Bleed</button>
-        <button type="button" data-layout="strip">Triple Strip</button>
-      </div>
-      <div class="group" id="gradeGroup" aria-label="Grade">
-        <span class="group-label">Grade</span>
-        <button type="button" data-grade="sunset" class="active">Sunset</button>
-        <button type="button" data-grade="neon">Neon Nights</button>
-        <button type="button" data-grade="gold">Vice Gold</button>
-        <button type="button" data-grade="teal">Teal Dusk</button>
-      </div>
-      <div class="group" id="sizeGroup" aria-label="Size">
-        <span class="group-label">Size</span>
-        <button type="button" data-size="wide" class="active">Wide 1920×1080</button>
-        <button type="button" data-size="square">Square 1080×1080</button>
-        <button type="button" data-size="portrait">Portrait 1080×1350</button>
-      </div>
+    <div class="group">
+      <h2>Layout</h2>
+      <div class="choices" id="layoutChoices"></div>
     </div>
 
-    <div class="stage" id="stage">
-      <canvas id="cover" width="960" height="540"></canvas>
+    <div class="group">
+      <h2>Grade</h2>
+      <div class="choices" id="gradeChoices"></div>
     </div>
-    <p class="hint" id="hint">Pick a layout, a grade and a size — then tune each panel below. Export writes a PNG at full post size.</p>
+
+    <div class="group">
+      <h2>Export size</h2>
+      <div class="choices" id="sizeChoices"></div>
+    </div>
+
+    <div class="group">
+      <h2>Words</h2>
+      <label>Title
+        <input id="titleInput" type="text" maxlength="24" value="NEON COAST">
+      </label>
+      <label>Subtitle
+        <input id="subtitleInput" type="text" maxlength="40" value="Sunset County">
+      </label>
+      <label>Tagline
+        <input id="taglineInput" type="text" maxlength="60" value="SIX FRAMES · ONE NIGHT · NO WAY BACK">
+      </label>
+      <label>Quote
+        <input id="quoteInput" type="text" maxlength="60" value="THE CITY NEVER LOOKS BACK">
+      </label>
+    </div>
+
+    <div class="group">
+      <h2>Panels</h2>
+      <p class="hint">Every panel holds one photo, cropped around its focus
+      point — never blurred, never stretched. Six-Frame uses all six panels,
+      Feature Solo uses panel 1, Triple Strip uses panels 1–3.</p>
+      <div id="panelEditors"></div>
+    </div>
+
+    <div class="actions">
+      <button id="exportBtn" type="button">Export PNG</button>
+      <p id="status" role="status"></p>
+    </div>
   </section>
 
-  <aside class="panel" id="panel">
-    <h2>Panels</h2>
-    <div id="panelList"></div>
-
-    <h2>Caption</h2>
-    <label class="field">Title
-      <input id="inTitle" type="text" value="VICE CITY" maxlength="24">
-    </label>
-    <label class="field">Script subtitle
-      <input id="inScript" type="text" value="Jason &amp; Lucia" maxlength="32">
-    </label>
-    <label class="field">Quote
-      <input id="inQuote" type="text" value="EVERY SUNSET ENDS IN A GETAWAY" maxlength="60">
-    </label>
-    <label class="field">Tagline
-      <input id="inTagline" type="text" value="TWO OUTLAWS · ONE COAST · NO WAY BACK" maxlength="60">
-    </label>
-  </aside>
+  <section class="preview" aria-label="Live preview">
+    <canvas id="cover" width="960" height="540"></canvas>
+    <p class="preview-note">Live preview — what you see is what the PNG holds.</p>
+  </section>
 </main>
-
-<footer class="foot" id="foot">
-  <p>Vice City Cover Studio — an offline cover maker. Fonts Anton &amp; Pacifico under the SIL Open Font License.
-  Sample photos were made with an image model. No Rockstar Games logo, artwork or fonts are used.</p>
-</footer>
-
-<script type="module" src="cover.js"></script>
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>
