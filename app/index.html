@@ -3,49 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Golden Heist — GTA-style Cover Maker</title>
+<title>Vice City Cover Studio</title>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <main class="app">
   <section class="controls">
-    <h1>Golden Heist</h1>
-    <p class="tag">Your photos, made into a GTA-style poster cover. Everything stays on your machine.</p>
-
-    <label>Title <input id="title" type="text" maxlength="24" value="GOLDEN HEIST"></label>
-    <label>Script subtitle <input id="subtitle" type="text" maxlength="40" value="steal the sunset"></label>
-    <label>Quote <input id="quote" type="text" maxlength="60" value="THE GOLDEN HOUR NEVER LOOKED THIS GOOD"></label>
-    <label>Quote source <input id="gazette" type="text" maxlength="30" value="THE SUNSET LEDGER"></label>
-    <label>Tagline <input id="tagline" type="text" maxlength="48" value="SIX CREW · ONE SCORE · NO WAY OUT"></label>
-
+    <h1>VICE CITY <span>COVER STUDIO</span></h1>
+    <p class="sub">Your photos, made into GTA-style poster covers. Everything stays on your machine.</p>
+    <label>Title <input id="title" type="text" maxlength="24" value="VICE CITY"></label>
+    <label>Script subtitle <input id="script" type="text" maxlength="40" value="Jason &amp; Lucia"></label>
+    <label>Quote <input id="quote" type="text" maxlength="80" value="EVERY SUNSET ENDS IN A GETAWAY"></label>
+    <label>Quote source <input id="quoteSource" type="text" maxlength="40" value="THE VICE GAZETTE"></label>
+    <label>Tagline <input id="tagline" type="text" maxlength="60" value="TWO OUTLAWS · ONE COAST · NO WAY BACK"></label>
     <div class="row">
       <label>Layout <select id="layout"></select></label>
       <label>Grade <select id="grade"></select></label>
     </div>
     <label>Export size <select id="size"></select></label>
-
-    <h2 id="panelName">Panel 1 — THE DRIVER</h2>
-    <div id="panels" class="panel-pick">
-      <button type="button" data-panel="0">1</button>
-      <button type="button" data-panel="1">2</button>
-      <button type="button" data-panel="2">3</button>
-      <button type="button" data-panel="3">4</button>
-      <button type="button" data-panel="4">5</button>
-      <button type="button" data-panel="5">6</button>
-    </div>
-    <p class="hint">Click a panel on the cover, or a number here, to edit it.</p>
-    <label>Photo <select id="panelPhoto"></select></label>
-    <input id="uploadFile" type="file" accept="image/*" hidden>
-    <label>Zoom <input id="panelZoom" type="range" min="0.8" max="3" step="0.05" value="1"></label>
-    <label>Focus left–right <input id="panelFx" type="range" min="0" max="1" step="0.01" value="0.5"></label>
-    <label>Focus top–bottom <input id="panelFy" type="range" min="0" max="1" step="0.01" value="0.3"></label>
-    <label>Role tag <input id="panelRole" type="text" maxlength="16" value="THE DRIVER"></label>
-
+    <label>Upload a photo <input id="upload" type="file" accept="image/*"></label>
     <button id="export" type="button">Export PNG</button>
     <p id="status" role="status"></p>
+    <h2 id="panelTitle">PANEL 1 — THE DRIVER</h2>
+    <div class="panels" id="panelButtons"></div>
+    <label>Panel photo <select id="panelPhoto"></select></label>
+    <label>Zoom <input id="zoom" type="range" min="1" max="2.5" step="0.05" value="1"></label>
+    <div class="row">
+      <label>Focus X <input id="fx" type="range" min="0" max="1" step="0.05" value="0.5"></label>
+      <label>Focus Y <input id="fy" type="range" min="0" max="1" step="0.05" value="0.35"></label>
+    </div>
+    <label>Role tag <input id="role" type="text" maxlength="16" value="THE DRIVER"></label>
+    <p class="hint">Pick a panel number to edit it. Upload a photo to use it in the selected panel.</p>
   </section>
   <section class="preview">
-    <canvas id="cover" width="980" height="551" aria-label="The cover preview"></canvas>
+    <canvas id="cover" width="1920" height="1080" aria-label="The cover"></canvas>
   </section>
 </main>
 <script type="module" src="./src/main.js"></script>

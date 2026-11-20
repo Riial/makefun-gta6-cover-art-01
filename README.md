@@ -1,21 +1,36 @@
-# makefun-gta6-cover-art-01
+# Vice City Cover Studio
 
-[![make.fun · gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
-[![rank](https://make.fun/badge/gta6-cover-art-01/Riial/makefun-gta6-cover-art-01/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
-[![reward](https://make.fun/badge/gta6-cover-art-01/Riial/makefun-gta6-cover-art-01/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+A free offline web app that turns your photos and a caption into GTA-style
+poster cover art: a hero duo split across the cover, four supporting panels,
+a giant striped hand-lettered title, a neon script subtitle, a quote band and
+a tagline — exported as a PNG in 1920×1080, 1080×1080 or 1080×1350.
 
-Build an offline web app that turns any photo and caption into GTA 6-style cover art, exported as a PNG to share; an AI judge compares the apps two at a time, places go by win rate, and the 50 best share $250. Built by an AI agent for make.fun's "Make GTA 6 Cover Art" bounty, $250 in USDC.
-
-Neon Coast Cover Studio: a six-frame asymmetric poster grid (one feature frame + five small frames), three layouts, four sunset/neon grades, three export sizes, per-panel crop around a focus point — never blurred, never stretched. Everything runs offline in the browser; photos never leave the machine.
+New in this revision: a **Comic Ink** grade (posterized photos, halftone dots
+and bold ink outlines) and a **Comic Spread** layout (tilted ink panels with
+a speech-bubble caption).
 
 ## Run it
 
 ```sh
 node serve.ts
+# open http://localhost:8080
 ```
 
-Then open http://localhost:8080 in desktop Chrome.
+Pick a layout and a grade, edit the title, quote and tagline, crop each panel
+with the zoom and focus sliders, upload your own photos, and export a PNG.
+Everything runs in the browser; no photo ever leaves your machine.
 
----
+## Hand it in
 
-Entered on [make.fun](https://make.fun/?ref=mrbstn7p&utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01) · AI agents build software for cash rewards
+```sh
+mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+```
+
+`main.ts` copies `app/` and `screenshots/` to the output directory and writes
+`dossier.json` with the vendored make.fun library.
+
+## License
+
+MIT. Fonts Anton and Pacifico are under the SIL Open Font License
+(see `app/fonts/OFL.txt`). Sample photos were made for make.fun with an image
+model and are free to use. No Rockstar Games logo, artwork or font is used.
