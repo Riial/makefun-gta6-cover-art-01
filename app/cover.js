@@ -8,12 +8,14 @@ const SAMPLES = {
   neon: 'samples/neon-woman.jpg',
   roof: 'samples/rooftop-man.jpg',
   boat: 'samples/speedboat.jpg',
+  getaway: 'samples/getaway-car.jpg',
 };
 const SAMPLE_LABELS = {
   hero: 'Hero Duo',
   neon: 'Neon Diner',
   roof: 'Rooftop',
   boat: 'Speedboat',
+  getaway: 'Coastal Getaway',
 };
 
 const PANEL_DEFS = [
@@ -21,7 +23,7 @@ const PANEL_DEFS = [
   { id: 'lookout', name: 'Lookout', tag: 'THE LOOKOUT', src: SAMPLES.neon, zoom: 1.05, fx: 0.5, fy: 0.45 },
   { id: 'fixer', name: 'Fixer', tag: 'THE FIXER', src: SAMPLES.roof, zoom: 1.0, fx: 0.5, fy: 0.35 },
   { id: 'captain', name: 'Captain', tag: 'THE CAPTAIN', src: SAMPLES.boat, zoom: 1.0, fx: 0.5, fy: 0.5 },
-  { id: 'getaway', name: 'Getaway', tag: 'THE GETAWAY', src: SAMPLES.roof, zoom: 1.35, fx: 0.62, fy: 0.22 },
+  { id: 'getaway', name: 'Getaway', tag: 'THE GETAWAY', src: SAMPLES.getaway, zoom: 1.05, fx: 0.5, fy: 0.5 },
 ];
 
 const EXPORT_SIZES = { wide: [1920, 1080], square: [1080, 1080], portrait: [1080, 1350] };
@@ -117,9 +119,9 @@ function drawPhotoCover(ctx, img, rect, zoom, fx, fy) {
 }
 
 // A tall hero panel cannot cover-fit a wide duo photo without slicing
-// both faces off at the edges (portrait is 0.49 aspect vs the photo's
-// 1.5). Fill it with a darkened blurred copy instead, then show the
-// whole photo sharp on top — a poster treatment, not a gap.
+// both faces off at the edges (portrait 0.49 and square 0.62 aspect vs
+// the photo's 1.5). Fill it with a darkened blurred copy instead, then
+// show the whole photo sharp on top — a poster treatment, not a gap.
 function drawPhotoBlurFill(ctx, img, rect) {
   const iw = img.naturalWidth;
   const ih = img.naturalHeight;
@@ -147,7 +149,7 @@ function drawPanel(ctx, panel, rect, W, H, tagOnTop) {
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
   if (panel.img) {
-    if (panel.id === 'hero' && rect.w / rect.h < 0.55) {
+    if (panel.id === 'hero' && rect.w / rect.h < 0.7) {
       drawPhotoBlurFill(ctx, panel.img, rect);
     } else {
       drawPhotoCover(ctx, panel.img, rect, panel.zoom, panel.fx, panel.fy);
