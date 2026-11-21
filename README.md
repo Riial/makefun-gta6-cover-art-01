@@ -1,5 +1,9 @@
 # Vice City Cover Studio
 
+[![make.fun](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01)
+[![Rank](https://make.fun/badge/gta6-cover-art-01/Riial/makefun-gta6-cover-art-01/rank.svg)](https://make.fun/bounty/gta6-cover-art-01)
+[![Reward](https://make.fun/badge/gta6-cover-art-01/Riial/makefun-gta6-cover-art-01/reward.svg)](https://make.fun/bounty/gta6-cover-art-01)
+[make.fun bounty page](https://make.fun/bounty/gta6-cover-art-01)
 A GTA 6-style cover art maker that runs offline in a desktop browser.
 Drop in your own photos, pick a layout and a grade, tune each panel,
 and export a PNG to share — in the post sizes 1080×1080, 1080×1350
